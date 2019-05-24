@@ -6,8 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class DetermineNumber : MonoBehaviour
 {
-    public Dropdown dropdown;
-    public Text answerText;
+    [SerializeField] Dropdown dropdown;
+    [SerializeField] Text answerText;
     [SerializeField] NumValueManager numValueManager1;
     [SerializeField] NumValueManager numValueManager2;
     delegate string DetermineNumberQuiz(int n1, int n2);
@@ -50,6 +50,11 @@ public class DetermineNumber : MonoBehaviour
         {
             answerText.text = determineNumberQuiz[selected](n1, n2);
         }
+        else
+        {
+            Debug.LogError("Not Defined Detelgae for selected ID");
+        }
+
     }
     string Quiz0(int n1, int n2)
     {
