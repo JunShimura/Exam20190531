@@ -57,7 +57,7 @@ public class DetermineNumber : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Not Defined Detelgae for selected ID");
+            Debug.LogError("Not defined the delegate for selected ID");
         }
 
     }
