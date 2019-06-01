@@ -4,9 +4,9 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using System;
+using System.Linq;
 
-public class DetermineNumber2 : MonoBehaviour
-{
+public class DetermineNumber2 : MonoBehaviour {
     #region Set in Editor
     [SerializeField] Dropdown dropdown;
     [SerializeField] Text answerText;
@@ -42,10 +42,9 @@ public class DetermineNumber2 : MonoBehaviour
         //ランダムを引く
         int rangeMax = randomMax - randomMin + 1;
         r1 = UnityEngine.Random.Range(0, rangeMax);
-        r2 = (r1 + UnityEngine.Random.Range(0, rangeMax + 1)) % rangeMax + randomMin;
+        r2 = (r1 + UnityEngine.Random.Range(1, rangeMax)) % rangeMax + randomMin;
         r1 += randomMin;
-        if (r1 > r2)
-        {
+        if (r1 > r2) {
             int t = r1;
             r1 = r2;
             r2 = t;
@@ -66,12 +65,10 @@ public class DetermineNumber2 : MonoBehaviour
         int n1 = numValueManager1.Value;
         int n2 = numValueManager2.Value;
         int selected = dropdown.value;
-        if (selected < determineNumberQuiz.Count)
-        {
+        if (selected < determineNumberQuiz.Count) {
             answerText.text = determineNumberQuiz[selected](n1, n2);
         }
-        else
-        {
+        else {
             Debug.LogError("Not Defined Detelgae for selected ID");
         }
 
@@ -88,12 +85,10 @@ public class DetermineNumber2 : MonoBehaviour
     {
         answerdTimes++;
         string answer = answerdTimes.ToString() + "回目:";   //こたえのメッセージ
-        if (r1 == n1)
-        {
+        if (r1 == n1) {
             answer += "当たり！";
         }
-        else
-        {
+        else {
             answer += "ハズレ";
         }
         return answer;
@@ -120,20 +115,16 @@ public class DetermineNumber2 : MonoBehaviour
     {
         answerdTimes++;
         string answer = answerdTimes.ToString() + "回目:";   //こたえのメッセージ
-        if (r1 == n1)
-        {
+        if (r1 == n1) {
             answer += "当たり！";
         }
-        else if (n1 == r1 - 1 || n1 == r1 + 1)
-        {   // 惜しい場合
+        else if (n1 == r1 - 1 || n1 == r1 + 1) {   // 惜しい場合
             answer += "惜しい";
         }
-        else if (n1 >= r1 - 3 && n1 <= r1 + 3)
-        {   // 近い場合
+        else if (n1 >= r1 - 3 && n1 <= r1 + 3) {   // 近い場合
             answer += "近い";
         }
-        else
-        {
+        else {
             answer += "ハズレ";
         }
         return answer;
@@ -155,89 +146,92 @@ public class DetermineNumber2 : MonoBehaviour
     /// <returns>判定結果</returns>
     string Quiz2(int n1, int n2)
     {
-        if (n1 > n2)
-        {
-            int t = n2;
-            n2 = n1;
-            n1 = t;
-        }
         answerdTimes++;
         string answer = answerdTimes.ToString() + "回目:";   //こたえのメッセージ
 
-        // 差分を求める
-        int diff1 = Mathf.Abs(r1 - n1);
-        int diff2 = Mathf.Abs(r2 - n2);
-        if (diff1 > diff2)
-        {
-            int t = diff2;
-            diff2 = diff1;
-            diff1 = t;
+        if (n1 < randomMin || n1 > randomMax || n2 < randomMin || n2 > randomMax) {
+            return answer += "入力エラー";
         }
-        if (diff1 == 0)
-        {
-            if (diff2 == 0)
-            {
+
+        // 差分を求める
+        int diff11 = Mathf.Min(Mathf.Abs(r1 - n1), 4);
+        int diff12 = Mathf.Min(Mathf.Abs(r1 - n2), 4);
+        int diff21 = Mathf.Min(Mathf.Abs(r2 - n1), 4);
+        int diff22 = Mathf.Min(Mathf.Abs(r2 - n2), 4);
+        int diffStraight, diffCross;
+        if (diff11 < diff22) {
+            diffStraight = diff11 * 10 + diff22;
+        }
+        else {
+            diffStraight = diff22 * 10 + diff11;
+        }
+        if (diff21 < diff12) {
+            diffCross = diff21 * 10 + diff12;
+        }
+        else {
+            diffCross = diff12 * 10 + diff21;
+        }
+        int diff1, diff2;
+        if (diffStraight < diffCross) {
+            diff1 = diffStraight / 10;
+            diff2 = diffStraight % 10;
+        }
+        else {
+            diff1 = diffCross / 10;
+            diff2 = diffCross % 10;
+        }
+
+        if (diff1 == 0) {
+            if (diff2 == 0) {
                 answer = "当たり";
             }
-            else
-            {
+            else {
                 answer = "片方あたり";
-                if (diff2 == 1)
-                {
+                if (diff2 == 1) {
                     answer += "片方惜しい";
                 }
-                else if (diff2 <= 3)
-                {
+                else if (diff2 <= 3) {
                     answer += "片方近い";
                 }
             }
         }
-        else if (diff1 == 1)
-        {
-            if (diff2 == 1)
-            {
+        else if (diff1 == 1) {
+            if (diff2 == 1) {
                 answer = "両方惜しい";
             }
-            else
-            {
+            else {
                 answer = "片方惜しい";
-                if (diff2 <= 3)
-                {
+                if (diff2 <= 3) {
                     answer += "片方近い";
                 }
             }
         }
-        else if (diff2 <= 3)
-        {
-            if (diff2 <= 3)
-            {
+        else if (diff2 <= 3) {
+            if (diff2 <= 3) {
                 answer = "両方惜しい";
             }
-            else
-            {
+            else {
                 answer = "片方惜しい";
             }
         }
-        else
-        {
+        else {
             answer = "ハズレ";
         }
         return answer;
     }
 
 
-    enum Diff
-    {
-        much1 = 1,
-        neighbor1 = 1 << 1,
-        near1 = 1 << 2,
-        far1 = 1 << 3,
-        much2 = 1 << 4,
-        neighbor2 = 1 << 5,
-        near2 = 1 << 6,
-        far2 = 1 << 7
+    enum Diff {
+        much2 = 1,
+        neighbor2 = 1 << 1,
+        near2 = 1 << 2,
+        far2 = 1 << 3,
+        much1 = 1 << 4,
+        neighbor1 = 1 << 5,
+        near1 = 1 << 6,
+        far1 = 1 << 7
     };
-    Dictionary<Diff, string> DiffMessage = new Dictionary<Diff, string>()
+    Dictionary<Diff, string> diffMessage = new Dictionary<Diff, string>()
     {
         {   Diff.much1      |Diff.much2,        "当たり" },
         {   Diff.much1      |Diff.neighbor2,    "片方当たり、片方惜しい" },
@@ -253,60 +247,29 @@ public class DetermineNumber2 : MonoBehaviour
 
     Diff Compare(int a, int b)
     {
-        int diff = Mathf.Abs(a - b);
-        if (diff == 0)
-        {
-            return Diff.much1;
-        }
-        else if (diff == 1)
-        {
-            return Diff.neighbor1;
-        }
-        else if (diff == 2 || diff == 3)
-        {
-            return Diff.neighbor1;
-        }
-        else
-        {
-            return Diff.far1;
-        }
+        Diff[] table = { Diff.much2, Diff.neighbor2, Diff.near2, Diff.near2, Diff.far2 };
+        return table[Mathf.Min(Mathf.Abs(a - b), 4)];
     }
     string Quiz3(int n1, int n2)
     {
-        if (n1 > n2)
-        {
-            int t = n2;
-            n2 = n1;
-            n1 = t;
-        }
         answerdTimes++;
         string answer = answerdTimes.ToString() + "回目:";   //こたえのメッセージ
-        // 差分を求める
-        List<int> judge = new List<int>();
-        judge.Add((int)Compare(n1, r1));
-        judge.Add((int)Compare(n1, r2));
-        judge.Add((int)Compare(n2, r1));
-        judge.Add((int)Compare(n2, r2));
-        Diff diff1;
-        if (judge[0] < judge[1])
-        {
-            diff1 = (Diff)judge[0];
+        if (n1 < randomMin || n1 > randomMax || n2 < randomMin || n2 > randomMax) {
+            return answer += "入力エラー";
         }
-        else
-        {
-            diff1 = (Diff)judge[1];
-        }
-        Diff diff2;
-        if (judge[2] < judge[3])
-        {
-            diff2 = (Diff)judge[2];
-        }
-        else
-        {
-            diff2 = (Diff)judge[3];
-        }
-        answer += DiffMessage[diff1|(Diff)((int)diff2<<4)];
 
+        // 差分を求める
+        List<int> judge1 = new List<int>();
+        judge1.Add((int)Compare(n1, r1));
+        judge1.Add((int)Compare(n1, r2));
+        judge1.Add((int)Compare(n2, r1));
+        judge1.Add((int)Compare(n2, r2));
+        List<int> judge2 = new List<int>();
+        judge2.Add(judge1[0] | (judge1[3] << 4));
+        judge2.Add(judge1[3] | (judge1[0] << 4));
+        judge2.Add(judge1[1] | (judge1[2] << 4));
+        judge2.Add(judge1[2] | (judge1[1] << 4));
+        answer += diffMessage[(Diff)judge2.Min()];
         return answer;
     }
     public void ResetScene()
