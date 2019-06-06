@@ -236,7 +236,7 @@ public class ExecButtonManager : MonoBehaviour
                 candy -= 11;
                 evolution++;
             }
-            else if (poppo > 0 && poppo + candy >= 12 && candy < 12)
+            else if (poppo > 0 && poppo + candy >= 13 )
             {   //飴が足りないがポッポを飴に変えると進化できる
                 poppo -= (12 - candy);
                 candy += (12 - candy);
@@ -256,8 +256,39 @@ public class ExecButtonManager : MonoBehaviour
     {
         //問題8
         string answer = "";
+
         //ここで答えを出してanswerへ代入する
-        answer = "Ex8 まだやってません";
+        int candy = (int)n1;   //飴
+        int  poppo = (int)n2;   //ポッポ
+        int evolution = 0;  //進化
+
+        for (; ; )
+        {
+            if (poppo > 0 && candy >= 12)
+            {   //進化
+                int evolvable = candy / 12; //進化できる数を飴から算出
+                if(evolvable > poppo)
+                {   //進化できる数がポッポの数以下の場合
+                    evolvable = poppo;
+                }
+                candy -= evolvable * 11;
+                poppo -= evolvable;
+                evolution += evolvable;
+            }
+            else if (poppo > 0 && poppo + candy >= 13)
+            {   //飴が足りないがポッポを飴に変えると進化できる
+                poppo -= (12 - candy);
+                candy += (12 - candy);
+            }
+            else
+            {
+                break;
+            }
+        }
+        answer = "進化" + evolution.ToString()
+            + "体,飴余り" + candy.ToString()
+            + "個、ポッポ余り" + poppo.ToString() + "羽";
+
         return answer;
     }
     string Ex9()
