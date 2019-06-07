@@ -12,7 +12,7 @@ public class DetermineNumber : MonoBehaviour
     [SerializeField] NumValueManager numValueManager1;
     [SerializeField] NumValueManager numValueManager2;
     #endregion
-    
+
     #region DelegateTable
     // Dalegate list for the selected procedure
     delegate string DetermineNumberQuiz(int n1, int n2);
@@ -20,7 +20,7 @@ public class DetermineNumber : MonoBehaviour
     #endregion
 
     // Random 
-    int r1;
+    int r1, r2;
     [SerializeField] int randomMin = 1;
     [SerializeField] int randomMax = 10;
 
@@ -39,12 +39,23 @@ public class DetermineNumber : MonoBehaviour
     void Start()
     {
         //ランダムを引く
-        r1 = Random.Range(randomMin, randomMax + 1);
+        int rangeMax = randomMax - randomMin + 1;
+        r1 = UnityEngine.Random.Range(0, rangeMax);
+        r2 = (r1 + UnityEngine.Random.Range(1, rangeMax)) % rangeMax + randomMin;
+        r1 += randomMin;
+        if (r1 > r2)
+        {
+            int t = r1;
+            r1 = r2;
+            r2 = t;
+        }
 #if debug_DetermineNumber_answer
         Debug.Log("r1=" + r1.ToString());
+        Debug.Log("r2=" + r2.ToString());
 #endif
-    }
 
+
+    }
     public void Exec()
     {
         //処理
@@ -123,16 +134,76 @@ public class DetermineNumber : MonoBehaviour
     /// <returns>判定結果</returns>
     string Quiz2(int n1, int n2)
     {
-        string answer = "まだやってません2";
+        answerdTimes++;
+        string answer = answerdTimes.ToString() + "回目:";   //こたえのメッセージ
+        if (r1 == n1)
+        {   //一つ目当たり
+            if (r2 == n2)
+            {   //二つ目も当たり
+                answer += "当たり！";
+            }
+            else if (Mathf.Abs(r2 - n2) <= 1)
+            {   //二つ目惜しい
+                answer += "ひとつ当たり、ひとつ惜しい";
+            }
+            else
+            {
+                answer += "ひとつ当たり";
+            }
+        }
+        else if (Mathf.Abs(r1 - n1) <= 1)
+        {   //一つ目惜しい
+            if (r2 == n2)
+            {   //二つ目も当たり
+                answer += "ひとつ当たり、ひとつ惜しい";
+            }
+            else if (Mathf.Abs(r2 - n2) <= 1)
+            {   //二つ目惜しい
+                answer += "ふたつ惜しい";
+            }
+            else
+            {
+                answer += "ひとつ惜しい";
+            }
+        }
+        //一つ目はずれ
+        else if (r2 == n2)
+        {   //二つ目当たり
+            answer += "ひとつ当たり";
+        }
+        else if (Mathf.Abs(r2 - n2) <= 1)
+        {   //二つ目惜しい
+            answer += "ひとつ惜しい";
+        }
+        else
+        {
+            answer += "ハズレ";
+        }
         return answer;
     }
     string Quiz3(int n1, int n2)
     {
-        string answer = "";
+        answerdTimes++;
+        string answer = answerdTimes.ToString() + "回目:";   //こたえのメッセージ
+        int a1 = Mathf.Min(Mathf.Abs(r1 - n1), 2);
+        int a2 = Mathf.Min(Mathf.Abs(r2 - n2), 2);
+        string[,] answerTable
+            ={
+            //[0,0] [0,1] [0,2]
+            {"当たり","ひとつ当たり、ひとつ惜しい","ひとつ当たり" },
+            //[1,0] [1,1] [1,2]
+            {"ひとつ当たり、ひとつ惜しい","両方惜しい","ひとつ惜しい" },
+            //[2,0] [2,1] [2,2]
+            { "ひとつ当たり","ひとつ惜しい","はずれ" }};
+        answer += answerTable[a1, a2];
         return answer;
     }
-    public void ResetScene()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
+
+
+
+
+public void ResetScene()
+{
+    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+}
 }
